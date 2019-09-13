@@ -1,4 +1,6 @@
-﻿using LiveCharts;
+﻿using Aproksymacja.MathLib;
+using Aproximation.MathLib;
+using LiveCharts;
 using LiveCharts.Defaults;
 using System;
 using System.Collections.Generic;
@@ -31,20 +33,18 @@ namespace Aproksymacja
                     Console.WriteLine("(3). f(x) = 2|x^3|");
                     isParsable = Int32.TryParse(Console.ReadLine(), out funSelection);
                     isBetween = funSelection.IsBetween(1, 3);
-
                 } while (!(isParsable && isBetween));
                 switch (funSelection)
                 {
-                    // uzupełnić o potrzebne funkcje
-                    //case 1:
-                    //    function = Example.Polynomial;
-                    //    break;
-                    //case 2:
-                    //    function = Example.Sinus;
-                    //    break;
-                    //case 3:
-                    //    function = Example.Absolute;
-                    //    break;
+                    case 1:
+                        function = Example.Polynomial;
+                        break;
+                    case 2:
+                        function = Example.Sinus;
+                        break;
+                    case 3:
+                        function = Example.Absolute;
+                        break;
                 }
             }
 
@@ -76,37 +76,35 @@ namespace Aproksymacja
             ///
             /// oblicanie funkcji aproksymującej
             ///
-
-
-
-            /// end
-            /// 
-
-            // wartości funkcji aproksymowanej - po prostu lista lub tablica wartości (x,y)
-            ChartValues<ObservablePoint> fun = new ChartValues<ObservablePoint>();
-            // wartości funkcji aproksymującej
-            ChartValues<ObservablePoint> approximation = new ChartValues<ObservablePoint>(); 
-            for (int i = 0; i <= 255; i++)
+            HermitePolynomials hermites = new HermitePolynomials();
+            double[] factors = new double[polynomialDegree + 1];
+            for (int i = 0; i <= polynomialDegree; i++)
             {
-                fun.Add(new ObservablePoint(i, Fun(i))); // wypełnianie listy wartościami (x,y)
-                approximation.Add(new ObservablePoint(i, Afun(i)));
+                double fun(double x)
+                {
+                    return function(x) * hermites[i](x);
+                }
+                double integral = new Gauss_Hermite(fun, 0.00001).GetResult();
+                factors[i] = integral / (Math.Pow(2, i) * MathExtensions.Factorial(i) * Math.Sqrt(Math.PI));
+            }
+            Approximation approximationResult = new Approximation(factors, hermites, polynomialDegree);
+            Func<double, double> approximatedFunction = approximationResult.GetResult();
+            /// end
+            ///
+
+            ChartValues<ObservablePoint> functionPoints = new ChartValues<ObservablePoint>();
+            ChartValues<ObservablePoint> approximatedFunctionPoints = new ChartValues<ObservablePoint>();
+            for (double i = a; i <= b; i++)
+            {
+                functionPoints.Add(new ObservablePoint(i, function(i))); // wypełnianie listy wartościami (x,y)
+                approximatedFunctionPoints.Add(new ObservablePoint(i, approximatedFunction(i)));
             }
 
             MainWindow window = new MainWindow();
-            window.Plot.FunctionValues = fun;
-            window.Plot.ApproximatedFunctionValues = approximation;
+            window.Plot.FunctionValues = functionPoints;
+            window.Plot.ApproximatedFunctionValues = approximatedFunctionPoints;
             window.Plot.Update(); // rysowanie wykresu
             window.Show();
-        }
-
-        double Fun(double x)
-        {
-            return Math.Sin(x);
-        }
-
-        double Afun(double x)
-        {
-            return x * x;
         }
     }
 }

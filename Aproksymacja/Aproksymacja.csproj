@@ -79,6 +79,7 @@
     <Compile Include="ApproximationPlot.xaml.cs">
       <DependentUpon>ApproximationPlot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Example.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -86,6 +87,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MathLib\Approximation.cs" />
+    <Compile Include="MathLib\Gauss-Hermite.cs" />
+    <Compile Include="MathLib\HermitePolynomials.cs" />
+    <Compile Include="MathLib\MathExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
